@@ -16,6 +16,17 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Topic :: Database",
 ]
+dependencies = [
+    "sqlalchemy>=2.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.2.1",
+]
+ci = [
+    "pytest",
+]
 
 [project.urls]
 "Source" = "https://github.com/michalc/pgarrow"
@@ -24,3 +35,6 @@ classifiers = [
 include = [
   "pgarrow.py"
 ]
+
+[project.entry-points."sqlalchemy.dialects"]
+"postgresql.pgarrow" = "pgarrow:PgDialect_pgarrow"
