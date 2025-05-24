@@ -1,2 +1,3 @@
-# sqlalchemy-postgresql-adbc-dialect
-A SQLAlchemy dialect for PostgreSQL: postgresql+adbc
+# pgarrow
+
+A SQLAlchemy PostgreSQL dialect for ADBC (Arrow Database Connectivity)
