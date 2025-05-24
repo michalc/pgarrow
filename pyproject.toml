@@ -1,0 +1,26 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pgarrow"
+version = "0.0.0.dev0"
+authors = [
+  { name="Michal Charemza", email="michal@charemza.name" },
+]
+description = "A SQLAlchemy PostgreSQL dialect for ADBC (Arrow Database Connectivity)"
+readme = "README.md"
+requires-python = ">=3.7.7"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Database",
+]
+
+[project.urls]
+"Source" = "https://github.com/michalc/pgarrow"
+
+[tool.hatch.build]
+include = [
+  "pgarrow.py"
+]
