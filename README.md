@@ -25,6 +25,41 @@ with engine.connect() as conn:
     results = conn.execute(sa.text("SELECT 1")).fetchall()
 ```
 
+To fetch data as an arrow table, which should be the most performant for large datasets, you must use SQLAlchemy's `driver_connection` to access the ADBC-level connection, create a cursor from it to run the query and fetch the table using `fetch_arrow_table`:
+
+```python
+import sqlalchemy as sa
+
+engine = sa.create_engine('postgresql+pgarrow://postgres:password@127.0.0.1:5432/')
+
+with \
+        engine.connect() as conn, \
+        conn.connection.driver_connection.cursor() as cursor:
+
+        cursor.execute("SELECT 1 AS a, 2.0::double precision AS b, 'Hello, world!' AS c")
+        table = cursor.fetch_arrow_table()
+```
+
+To insert data into the database from an arrow table, a similar pattern must be used to use `adbc_ingest`
+
+```python
+import sqlalchemy as sa
+
+engine = sa.create_engine('postgresql+pgarrow://postgres:password@127.0.0.1:5432/')
+table = pa.Table.from_arrays([[1,], [2,], ['Hello, world!',]], schema=pa.schema([
+    ('a', pa.int32()),
+    ('b', pa.float64()),
+    ('c', pa.string())
+]))
+
+with \
+        engine.connect() as conn, \
+        conn.connection.driver_connection.cursor() as cursor:
+
+    cursor.adbc_ingest("my_table", table, mode="create")
+    conn.commit()
+```
+
 
 ## Compatibility
 
