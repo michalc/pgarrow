@@ -1,4 +1,4 @@
-# pgarrow [![PyPI package](https://img.shields.io/pypi/v/pgarrow?label=PyPI%20package)](https://pypi.org/project/pgarrow/) [![Test suite](https://img.shields.io/github/actions/workflow/status/michalc/pgarrow/test.yaml?label=Test%20suite)](https://github.com/michalc/pgarrow/actions/workflows/test.yaml)
+# pgarrow [![PyPI package](https://img.shields.io/pypi/v/pgarrow?label=PyPI%20package)](https://pypi.org/project/pgarrow/) [![Test suite](https://img.shields.io/github/actions/workflow/status/michalc/pgarrow/test.yaml?label=Test%20suite)](https://github.com/michalc/pgarrow/actions/workflows/test.yaml) [![Code coverage](https://img.shields.io/codecov/c/github/michalc/pgarrow?label=Code%20coverage)](https://app.codecov.io/gh/michalc/pgarrow)
 
 A SQLAlchemy PostgreSQL dialect for ADBC (Arrow Database Connectivity)
 

@@ -25,9 +25,11 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "pytest>=7.2.1",
+    "pytest-cov",
 ]
 ci = [
     "pytest",
+    "pytest-cov",
     "sqlalchemy==2.0.7",
     "adbc-driver-postgresql==1.6.0",
     "pyarrow==20.0.0",
