@@ -2,6 +2,19 @@
 
 A SQLAlchemy PostgreSQL dialect for ADBC (Arrow Database Connectivity)
 
+---
+
+### Contents
+
+- [Installation](#installation)
+- [Usage](#usage)
+   - [Query returning built-in Python types](#query-returning-built-in-python-types)
+   - [Query returning an Arrow table](#query-returning-an-arrow-table)
+   - [Replace PostgreSQL table with an Arrow table](#replace-postgresql-table-with-an-arrow-table)
+   - [Create a table with SQLAlchemy and append an Arrow table](#create-a-table-with-sqlalchemy-and-append-an-arrow-table)
+- [Compatibility](#compatibility)
+
+---
 
 ## Installation
 
@@ -14,7 +27,15 @@ pip install pgarrow
 
 ## Usage
 
-pgarrow can be used using the `postgresql+pgarrow` dialect. For example, to connect to a running database on 127.0.0.1 (localhost) on port 5432 as user _postgres_ with password _password_ and run a trivial query:
+pgarrow can be used using the `postgresql+pgarrow` dialect when creating a SQLAlchemy engine. For example, to create an engine for a PostgreSQL database at 127.0.0.1 (localhost) on port 5432 with user _postgres_ and password _password_:
+
+```python
+engine = sa.create_engine('postgresql+pgarrow://postgres:password@127.0.0.1:5432/')
+```
+
+### Query returning built-in Python types
+
+To run a query that returns built-in Python types, as is typical with SQLAlchemy:
 
 ```python
 import sqlalchemy as sa
@@ -25,7 +46,9 @@ with engine.connect() as conn:
     results = conn.execute(sa.text("SELECT 1")).fetchall()
 ```
 
-To fetch data as an arrow table, which should be the most performant for large datasets, you must use SQLAlchemy's `driver_connection` to access the ADBC-level connection, create a cursor from it to run the query and fetch the table using `fetch_arrow_table`:
+### Query returning an Arrow table
+
+To run a query that returns an Arrow table, which should be the most performant for large datasets, you must use SQLAlchemy's `driver_connection` to access the ADBC-level connection, create a cursor from it to run the query and fetch the table using `fetch_arrow_table`::
 
 ```python
 import sqlalchemy as sa
@@ -36,11 +59,13 @@ with \
         engine.connect() as conn, \
         conn.connection.driver_connection.cursor() as cursor:
 
-        cursor.execute("SELECT 1 AS a, 2.0::double precision AS b, 'Hello, world!' AS c")
-        table = cursor.fetch_arrow_table()
+    cursor.execute("SELECT 1 AS a, 2.0::double precision AS b, 'Hello, world!' AS c")
+    table = cursor.fetch_arrow_table()
 ```
 
-To insert data into the database from an arrow table, a similar pattern must be used to use `adbc_ingest`
+### Replace PostgreSQL table with an Arrow table
+
+To insert data into the database from an Arrow table, a similar pattern must be used to use `adbc_ingest`:
 
 ```python
 import sqlalchemy as sa
@@ -49,7 +74,7 @@ engine = sa.create_engine('postgresql+pgarrow://postgres:password@127.0.0.1:5432
 table = pa.Table.from_arrays([[1,], [2,], ['Hello, world!',]], schema=pa.schema([
     ('a', pa.int32()),
     ('b', pa.float64()),
-    ('c', pa.string())
+    ('c', pa.string()),
 ]))
 
 with \
@@ -60,7 +85,9 @@ with \
     conn.commit()
 ```
 
-Or to create a table using SQLAlchemy, and then append as pyarrow table to it:
+### Create a table with SQLAlchemy and append an Arrow table
+
+To create a table using SQLAlchemy, and then append an Arrow table to it:
 
 ```python
 import sqlalchemy as sa
@@ -77,7 +104,7 @@ sa.Table(
 table = pa.Table.from_arrays([[1,], [2,], ['Hello, world!',]], schema=pa.schema([
     ('a', pa.int32()),
     ('b', pa.float64()),
-    ('c', pa.string())
+    ('c', pa.string()),
 ]))
 
 with \
