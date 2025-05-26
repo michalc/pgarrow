@@ -16,10 +16,14 @@ def test_basic_transaction_isolation():
 
     with \
             engine.connect() as conn_1, \
-            engine.connect() as conn_2:
+            engine.connect() as conn_2, \
+            engine.connect() as conn_3:
 
         conn_1.execute(sa.text(f"CREATE TABLE {table_name} (id int)"))
         conn_1.execute(sa.text(f"INSERT INTO {table_name} VALUES (1)"))
 
         with pytest.raises(sa.exc.ProgrammingError, match=f'relation "{table_name}" does not exist'):
-            assert conn_2.execute(sa.text(f"SELECT * FROM {table_name}")).fetchall() == [(1,)]
+            conn_2.execute(sa.text(f"SELECT * FROM {table_name}"))
+
+        conn_1.commit()
+        assert conn_3.execute(sa.text(f"SELECT * FROM {table_name}")).fetchall() == [(1,)]
