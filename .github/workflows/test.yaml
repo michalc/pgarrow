@@ -23,6 +23,22 @@ jobs:
           - "14.0"
           - "15.0"
           - "16.0"
+        pyarrow-version:
+          # adbc-driver-postgresql requires pyarrow.dataset which was added in PyArrow 15.0.0
+          - "15.0.0"
+          - "16.0.0"
+          - "17.0.0"
+          - "18.0.0"
+          - "19.0.0"
+          - "20.0.0"
+        exclude:
+          # These don't have compatible compiled pyarrow on PyPI (and was tricky to build)
+          - python-version: "3.13.0"
+            pyarrow-version: "15.0.0"
+          - python-version: "3.13.0"
+            pyarrow-version: "16.0.0"
+          - python-version: "3.13.0"
+            pyarrow-version: "17.0.0"
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v4
@@ -35,7 +51,7 @@ jobs:
 
       - name: "Install package and dependencies"
         run: |
-          uv pip install .[dev,ci]
+          uv pip install .[dev,ci,ci-pyarrow-${{ matrix.pyarrow-version }}]
 
       - name: "Start PostgreSQL"
         run: |

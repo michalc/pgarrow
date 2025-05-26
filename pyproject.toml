@@ -20,7 +20,7 @@ dependencies = [
     "sqlalchemy>=2.0.7;python_version<'3.13'",
     "sqlalchemy>=2.0.31;python_version>='3.13'",
     "adbc-driver-postgresql>=1.6.0",
-    "pyarrow>=20.0.0",
+    "pyarrow>=15.0.0",
 ]
 
 [project.optional-dependencies]
@@ -35,6 +35,23 @@ ci = [
     # SQLAlchemy doesn't support Python 3.13 until 2.0.31
     "sqlalchemy==2.0.31;python_version>='3.13'",
     "adbc-driver-postgresql==1.6.0",
+]
+"ci-pyarrow-15.0.0" = [
+    "pyarrow==15.0.0",
+]
+"ci-pyarrow-16.0.0" = [
+    "pyarrow==16.0.0",
+]
+"ci-pyarrow-17.0.0" = [
+    "pyarrow==17.0.0",
+]
+"ci-pyarrow-18.0.0" = [
+    "pyarrow==18.0.0",
+]
+"ci-pyarrow-19.0.0" = [
+    "pyarrow==19.0.0",
+]
+"ci-pyarrow-20.0.0" = [
     "pyarrow==20.0.0",
 ]
 
