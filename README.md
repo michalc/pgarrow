@@ -24,3 +24,12 @@ engine = sa.create_engine('postgresql+pgarrow://postgres:password@127.0.0.1:5432
 with engine.connect() as conn:
     results = conn.execute(sa.text("SELECT 1")).fetchall()
 ```
+
+
+## Compatibility
+
+- Python >= 3.9 (tested on 3.9.0, 3.10.0, 3.11.1, 3.12.0, and 3.13.0)
+- PostgreSQL >= 13.0 (tested on 13.0, 14.0, 15.0, and 16.0)
+- SQLAlchemy >= 2.0.7 on Python < 3.13, and SQLAlchemy >= 2.0.31 on Python >= 3.13 (tested on 2.0.7 on Python before 3.13.0, and SQLAlchemy 2.0.31 on Python 3.13.0)
+- PyArrow >= 20.0.0 (tested on 20.0.0)
+- adbc-driver-postgresql >= 1.6.0 (tested on 1.6.0)
