@@ -22,5 +22,5 @@ import sqlalchemy as sa
 engine = sa.create_engine('postgresql+pgarrow://postgres:password@127.0.0.1:5432/')
 
 with engine.connect() as conn:
-	results = conn.execute(sa.text("SELECT 1")).fetchall()
+    results = conn.execute(sa.text("SELECT 1")).fetchall()
 ```
