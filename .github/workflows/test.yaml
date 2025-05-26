@@ -10,6 +10,13 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       matrix:
+        python-version:
+          # adbc-driver-postgresql 1.6.0 supports Python 3.9.0 onwards
+          - "3.9.0"
+          - "3.10.0"
+          - "3.11.1"
+          - "3.12.0"
+          - "3.13.0"
         postgresql-version:
           # ROLLBACK AND CHAIN is used by ADBC but not supported until PostgreSQL 13.0
           - "13.0"
@@ -20,14 +27,15 @@ jobs:
       - name: "Checkout code"
         uses: actions/checkout@v4
 
-      - name: "Install Python"
-        uses: actions/setup-python@v5
+      - name: Install uv and set the python version
+        uses: astral-sh/setup-uv@v6
         with:
-          python-version: 3.12
+          python-version: ${{ matrix.python-version }}
+          activate-environment: true
 
       - name: "Install package and dependencies"
         run: |
-          pip install .[dev,ci]
+          uv pip install .[dev,ci]
 
       - name: "Start PostgreSQL"
         run: |
