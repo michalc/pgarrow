@@ -8,6 +8,18 @@ on:
 jobs:
   test:
     runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        postgresql-version:
+          # ROLLBACK AND CHAIN is used but not supported until 13.0
+          # - "9.6"
+          # - "10.0"
+          # - "11.0"
+          # - "12.0"
+          - "13.0"
+          - "14.0"
+          - "15.0"
+          - "16.0"
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v4
@@ -23,7 +35,7 @@ jobs:
 
       - name: "Start PostgreSQL"
         run: |
-          ./start-services.sh
+          ./start-services.sh ${{ matrix.postgresql-version }}
 
       - name: "Run tests"
         run: |
