@@ -20,6 +20,10 @@ jobs:
         run: |
           pip install .[dev,ci]
 
+      - name: "Start PostgreSQL"
+        run: |
+          ./start-services.sh
+
       - name: "Run tests"
         run: |
           pytest
