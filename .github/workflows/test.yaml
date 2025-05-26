@@ -11,11 +11,7 @@ jobs:
     strategy:
       matrix:
         postgresql-version:
-          # ROLLBACK AND CHAIN is used but not supported until 13.0
-          # - "9.6"
-          # - "10.0"
-          # - "11.0"
-          # - "12.0"
+          # ROLLBACK AND CHAIN is used by ADBC but not supported until PostgreSQL 13.0
           - "13.0"
           - "14.0"
           - "15.0"
