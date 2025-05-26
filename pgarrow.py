@@ -3,14 +3,13 @@ from sqlalchemy.dialects.postgresql.base import PGDialect
 
 
 class PgDialect_pgarrow(PGDialect):
-
     # This is already set in PGDialect, but shows an error if we don't set to true
     # AttributeError: 'PgDialect_pgarrow' object has no attribute 'driver'
     supports_statement_cache = True
 
     @classmethod
     def import_dbapi(cls):
-        return adbc_driver_postgresql.dbapi
+        return AdbcFixedParamStyleDBAPI()
 
     def create_connect_args(self, url):
         return ((url._replace(drivername='postgresql').render_as_string(hide_password=False),), {})
@@ -33,3 +32,12 @@ class PgDialect_pgarrow(PGDialect):
         ) as cursor:
             cursor.execute("show standard_conforming_strings")
             self._backslash_escapes = cursor.fetchone()[0] == "off"
+
+
+class AdbcFixedParamStyleDBAPI():
+    # adbc_driver_postgresql.dbapi has paramstyle of pyformat
+    paramstyle = "numeric_dollar"
+    Error = adbc_driver_postgresql.dbapi.Error
+
+    def connect(self, *args, **kwargs):
+        return adbc_driver_postgresql.dbapi.connect(*args, **kwargs)
