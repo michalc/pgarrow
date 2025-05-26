@@ -1,4 +1,4 @@
-# pgarrow
+# pgarrow [![PyPI package](https://img.shields.io/pypi/v/pgarrow?label=PyPI%20package)](https://pypi.org/project/pgarrow/)
 
 A SQLAlchemy PostgreSQL dialect for ADBC (Arrow Database Connectivity)
 
