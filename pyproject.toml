@@ -30,7 +30,9 @@ dev = [
 ci = [
     "pytest",
     "pytest-cov",
-    "sqlalchemy==2.0.7",
+    "sqlalchemy==2.0.7;python_version<'3.13'",
+    # SQLAlchemy doesn't support Python 3.13 until 2.0.31
+    "sqlalchemy==2.0.31;python_version>='3.13'",
     "adbc-driver-postgresql==1.6.0",
     "pyarrow==20.0.0",
 ]
