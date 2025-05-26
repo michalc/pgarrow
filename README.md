@@ -60,6 +60,35 @@ with \
     conn.commit()
 ```
 
+Or to create a table using SQLAlchemy, and then append as pyarrow table to it:
+
+```python
+import sqlalchemy as sa
+
+metadata = sa.MetaData()
+sa.Table(
+    "my_table",
+    metadata,
+    sa.Column("a", sa.INTEGER),
+    sa.Column("b", sa.DOUBLE_PRECISION),
+    sa.Column("c", sa.TEXT),
+    schema="public",
+)
+table = pa.Table.from_arrays([[1,], [2,], ['Hello, world!',]], schema=pa.schema([
+    ('a', pa.int32()),
+    ('b', pa.float64()),
+    ('c', pa.string())
+]))
+
+with \
+        engine.connect() as conn, \
+        conn.connection.driver_connection.cursor() as cursor:
+
+    metadata.create_all(conn)
+    cursor.adbc_ingest("my_table", table, mode="append")
+    conn.commit()
+```
+
 
 ## Compatibility
 

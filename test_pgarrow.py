@@ -46,7 +46,7 @@ def test_select_as_pyarrow_table():
         ]))
 
 
-def test_insert_from_pyarrow_table():
+def test_create_from_pyarrow_table():
     engine = sa.create_engine('postgresql+pgarrow://postgres:password@127.0.0.1:5432/')
     table_name = "table_" + uuid.uuid4().hex
 
@@ -63,6 +63,46 @@ def test_insert_from_pyarrow_table():
         ]))
 
         cursor.adbc_ingest(table_name, table, mode="create")
+
+        assert conn_1.execute(sa.text(f"SELECT * FROM {table_name}")).fetchall() == [(1, 2.0, 'Hello, world!')]
+
+        # Make sure adbc_ingest doesn't commit under the hood
+        with pytest.raises(sa.exc.ProgrammingError, match=f'relation "{table_name}" does not exist'):
+            conn_2.execute(sa.text(f"SELECT * FROM {table_name}"))
+
+        conn_1.commit()
+        assert conn_3.execute(sa.text(f"SELECT * FROM {table_name}")).fetchall() == [(1, 2.0, 'Hello, world!')]
+
+
+def test_create_sqlalchemy_table_and_append_pyarrow_table():
+    engine = sa.create_engine('postgresql+pgarrow://postgres:password@127.0.0.1:5432/')
+    table_name = "table_" + uuid.uuid4().hex
+
+    metadata = sa.MetaData()
+    sa.Table(
+        table_name,
+        metadata,
+        sa.Column("a", sa.INTEGER),
+        sa.Column("b", sa.DOUBLE_PRECISION),
+        sa.Column("c", sa.TEXT),
+        schema="public",
+    )
+
+    with \
+            engine.connect() as conn_1, \
+            engine.connect() as conn_2, \
+            engine.connect() as conn_3, \
+            conn_1.connection.driver_connection.cursor() as cursor:
+
+        metadata.create_all(conn_1)
+
+        table = pa.Table.from_arrays([[1,], [2,], ['Hello, world!',]], schema=pa.schema([
+            ('a', pa.int32()),
+            ('b', pa.float64()),
+            ('c', pa.string())
+        ]))
+
+        cursor.adbc_ingest(table_name, table, mode="append")
 
         assert conn_1.execute(sa.text(f"SELECT * FROM {table_name}")).fetchall() == [(1, 2.0, 'Hello, world!')]
 
