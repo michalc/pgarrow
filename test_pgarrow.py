@@ -112,3 +112,15 @@ def test_create_sqlalchemy_table_and_append_pyarrow_table():
 
         conn_1.commit()
         assert conn_3.execute(sa.text(f"SELECT * FROM {table_name}")).fetchall() == [(1, 2.0, 'Hello, world!')]
+
+
+def test_reflection():
+    engine = sa.create_engine('postgresql+pgarrow://postgres:password@127.0.0.1:5432/')
+    table_name = "table_" + uuid.uuid4().hex
+
+    with engine.connect() as conn:
+        conn.execute(sa.text(f"CREATE TABLE {table_name} (id int)"))
+        table = sa.Table(table_name, sa.MetaData(), schema="public", autoload_with=conn)
+        assert table.name == table_name
+        assert table.columns[0].name == 'id'
+        assert isinstance(table.columns[0].type, sa.INTEGER)
