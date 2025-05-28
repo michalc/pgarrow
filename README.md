@@ -48,7 +48,7 @@ with engine.connect() as conn:
 
 ### Query returning an Arrow table
 
-To run a query that returns an Arrow table, which should be the most performant for large datasets, you must use SQLAlchemy's `driver_connection` to access the ADBC-level connection, create a cursor from it to run the query and fetch the table using `fetch_arrow_table`::
+To run a query that returns an Arrow table, which should be the most performant for large datasets, you must use SQLAlchemy's `driver_connection` to access the ADBC-level connection, create a cursor from it to run the query and fetch the table using `fetch_arrow_table`:
 
 ```python
 import sqlalchemy as sa
