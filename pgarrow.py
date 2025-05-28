@@ -7,9 +7,17 @@ from sqlalchemy.types import INT
 
 
 class PgDialect_pgarrow(PGDialect):
-    # This is already set in PGDialect, but shows an error if we don't set to true
-    # AttributeError: 'PgDialect_pgarrow' object has no attribute 'driver'
+    # This is already set in PGDialect, but shows an error or warning (depending on if we also set
+    # driver) if we don't set it again
     supports_statement_cache = True
+
+    # This should be an "identifying name for the dialect's DBAPI". Was torn on the form of this,
+    # for example should it be "adbc_driver_postgresql" the Python module name, or
+    # "adbc-driver-postgresql" the published package name, or something shorter like "adbc?
+    # Opted to have it match the user facing "postgresql+pgarrow" used when defining the engine,
+    # which seems to be the case for many other dialects. This also means it can be used to to
+    # identify this dialect seperate from other adbc dialects that might be written in future
+    driver = 'pgarrow'
 
     @classmethod
     def import_dbapi(cls):
