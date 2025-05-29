@@ -5,14 +5,17 @@ import pyarrow as pa
 import sqlalchemy as sa
 
 
+engine_future = {'future': True} if tuple(int(v) for v in sa.__version__.split('.')) < (2, 0, 0) else {}
+
+
 def test_trivial_query():
-    engine = sa.create_engine('postgresql+pgarrow://postgres:password@127.0.0.1:5432/')
+    engine = sa.create_engine('postgresql+pgarrow://postgres:password@127.0.0.1:5432/', **engine_future)
     with engine.connect() as conn:
         assert conn.execute(sa.text("SELECT 1")).fetchall() == [(1,)]
 
 
 def test_basic_transaction_isolation():
-    engine = sa.create_engine('postgresql+pgarrow://postgres:password@127.0.0.1:5432/')
+    engine = sa.create_engine('postgresql+pgarrow://postgres:password@127.0.0.1:5432/', **engine_future)
     table_name = "table_" + uuid.uuid4().hex
 
     with \
@@ -31,7 +34,7 @@ def test_basic_transaction_isolation():
 
 
 def test_select_as_pyarrow_table():
-    engine = sa.create_engine('postgresql+pgarrow://postgres:password@127.0.0.1:5432/')
+    engine = sa.create_engine('postgresql+pgarrow://postgres:password@127.0.0.1:5432/', **engine_future)
 
     with \
             engine.connect() as conn, \
@@ -47,7 +50,7 @@ def test_select_as_pyarrow_table():
 
 
 def test_create_from_pyarrow_table():
-    engine = sa.create_engine('postgresql+pgarrow://postgres:password@127.0.0.1:5432/')
+    engine = sa.create_engine('postgresql+pgarrow://postgres:password@127.0.0.1:5432/', **engine_future)
     table_name = "table_" + uuid.uuid4().hex
 
     with \
@@ -75,7 +78,7 @@ def test_create_from_pyarrow_table():
 
 
 def test_create_sqlalchemy_table_and_append_pyarrow_table():
-    engine = sa.create_engine('postgresql+pgarrow://postgres:password@127.0.0.1:5432/')
+    engine = sa.create_engine('postgresql+pgarrow://postgres:password@127.0.0.1:5432/', **engine_future)
     table_name = "table_" + uuid.uuid4().hex
 
     metadata = sa.MetaData()
@@ -115,7 +118,7 @@ def test_create_sqlalchemy_table_and_append_pyarrow_table():
 
 
 def test_reflection():
-    engine = sa.create_engine('postgresql+pgarrow://postgres:password@127.0.0.1:5432/')
+    engine = sa.create_engine('postgresql+pgarrow://postgres:password@127.0.0.1:5432/', **engine_future)
     table_name = "table_" + uuid.uuid4().hex
 
     with engine.connect() as conn:
