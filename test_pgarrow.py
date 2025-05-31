@@ -123,6 +123,7 @@ def test_reflection():
 
     with engine.connect() as conn:
         conn.execute(sa.text(f"CREATE TABLE {table_name} (id int)"))
+        conn.execute(sa.text(f"CREATE INDEX ON {table_name} (id)"))
         table = sa.Table(table_name, sa.MetaData(), schema="public", autoload_with=conn)
         assert table.name == table_name
         assert table.columns[0].name == 'id'
