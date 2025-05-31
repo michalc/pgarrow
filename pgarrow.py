@@ -2,8 +2,9 @@ import adbc_driver_postgresql.dbapi
 
 from sqlalchemy import sql, cast
 from sqlalchemy.dialects import util
+from sqlalchemy.dialects.postgresql import pg_catalog
 from sqlalchemy.dialects.postgresql.base import PGDialect
-from sqlalchemy.types import INT
+from sqlalchemy.types import ARRAY, INT, TEXT
 
 
 class PgDialect_pgarrow(PGDialect):
@@ -47,26 +48,39 @@ class PgDialect_pgarrow(PGDialect):
 
     @util.memoized_property
     def _constraint_query(self):
-        return sql.visitors.replacement_traverse(super()._constraint_query, {}, self._work_around_bound_python_ints_cast_as_bigint)
+        return sql.visitors.replacement_traverse(super()._constraint_query, {}, self._work_around_query_adbc_base_incompatibilities)
 
     @util.memoized_property
     def _index_query(self):
-        return sql.visitors.replacement_traverse(super()._index_query, {}, self._work_around_bound_python_ints_cast_as_bigint)
+        return sql.visitors.replacement_traverse(super()._index_query, {}, self._work_around_query_adbc_base_incompatibilities)
 
-    def _work_around_bound_python_ints_cast_as_bigint(self, obj):
-        '''Casts known cases of arguments to functions that have to have INT arguments to INT
+    def _work_around_query_adbc_base_incompatibilities(self, obj):
+        '''Works around cases where ADBC is not compatible with the base PostgreSQL dialect queries
 
-        This works around the issues that the underlying adbc driver converts bound Python int
-        arguments to BIGINT, which happens due to the queries in _constraint_query and
-        _index_query
+        1. Cases of arguments to functions that have to have INT arguments to INT
 
-        Discussed at https://github.com/apache/arrow-adbc/discussions/2865
-        WIP PR at https://github.com/apache/arrow-adbc/pull/2881, which when released this function
-        should be removed
+           This works around the issues that the underlying adbc driver converts bound Python int
+           arguments to BIGINT, which happens due to the queries in _constraint_query and
+           _index_query
 
-        When removed, might be able to reduce the minimum SQLAlchemy on Python 3.13 from 2.0.41 to
-        2.0.31, because the minimum version was only increased to support this
+           Discussed at https://github.com/apache/arrow-adbc/discussions/2865
+           WIP PR at https://github.com/apache/arrow-adbc/pull/2881, which when released this
+           function should be removed
+
+           When removed, might be able to reduce the minimum SQLAlchemy on Python 3.13 from 2.0.41
+           to 2.0.31, because the minimum version was only increased to support this
+
+        2. Cases of querying int2vector fields, and specifically pg_index.indoption
+
+           This works around the fact that querying int2vector seems to result in binary data
+           returned. To avoid this, we maniuplate the query in PostgreSQL to return array of ints,
+           which behaves as the query in the base dialect expects
+
+           Discussed at https://github.com/apache/arrow-adbc/discussions/2899
         '''
+        if isinstance(obj, sql.schema.Column) and obj._label == 'pg_catalog_pg_index_indoption':
+            return cast(sql.func.string_to_array(cast(pg_catalog.pg_index.c.indoption, TEXT), ' '), ARRAY(INT)).label('indoption')
+
         if isinstance(obj, sql.functions.Function) and obj.name in ('generate_subscripts', 'pg_get_indexdef'):
             arguments = [
                 argument
@@ -78,7 +92,10 @@ class PgDialect_pgarrow(PGDialect):
                 (argument if i != 1 else cast(argument, INT))
                 for i, argument in enumerate(arguments)
             ]
-            return getattr(sql.func, obj.name)(*new_arguments).label("ord")
+            function_call = getattr(sql.func, obj.name)(*new_arguments)
+            return \
+                function_call.label("ord") if obj.name == 'generate_subscripts' else \
+                function_call
 
 
 class AdbcFixedParamStyleDBAPI():
