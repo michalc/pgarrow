@@ -52,6 +52,9 @@ ci = [
 "ci-pyarrow-20.0.0" = [
     "pyarrow==20.0.0",
 ]
+"ci-pyarrow-22.0.0" = [
+    "pyarrow==22.0.0",
+]
 "ci-sqlalchemy-1" = [
    "sqlalchemy==1.4.24",
 ]
