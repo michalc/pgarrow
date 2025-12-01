@@ -54,7 +54,7 @@ jobs:
 
       - name: "Install package and dependencies"
         run: |
-          uv pip install .[dev,ci,ci-pyarrow-${{ matrix.pyarrow-version }},ci-sqlalchemy-${{ matrix.pyarrow-version }}]
+          uv pip install .[dev,ci,ci-pyarrow-${{ matrix.pyarrow-version }},ci-sqlalchemy-${{ matrix.sqlalchemy-version }}]
 
       - name: "Start PostgreSQL"
         run: |
