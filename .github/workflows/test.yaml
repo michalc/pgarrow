@@ -23,6 +23,8 @@ jobs:
           - "14.0"
           - "15.0"
           - "16.0"
+          - "17.0"
+          - "18.0"
         pyarrow-version:
           # adbc-driver-postgresql requires pyarrow.dataset which was added in PyArrow 15.0.0
           - "15.0.0"

@@ -120,7 +120,7 @@ with \
 ## Compatibility
 
 - Python >= 3.9 (tested on 3.9.0, 3.10.0, 3.11.1, 3.12.0, and 3.13.0)
-- PostgreSQL >= 13.0 (tested on 13.0, 14.0, 15.0, and 16.0)
+- PostgreSQL >= 13.0 (tested on 13.0, 14.0, 15.0, 16.0, 17.0, and 18.0)
 - SQLAlchemy >= 2.0.7 on Python < 3.13.0; and >= 2.0.41 on Python >=3.13.0 (tested on 2.0.7 with Python before 3.13.0; and tested on 2.0.41 with Python 3.13.0)
 - PyArrow >= 15.0.0 with Python < 3.13, and PyArrow >= 18.0.0 with Python >= 3.13.0 (tested on 15.0.0, 16.0.0, 17.0.0, 18.0.0, 19.0.0, 20.0.0 with Python before 3.13.0; and 18.0.0, 19.0.0, and 20.0.0 with Python 3.13.0)
 - adbc-driver-postgresql >= 1.6.0 (tested on 1.6.0)
