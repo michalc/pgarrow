@@ -1,5 +1,6 @@
 import uuid
 
+import adbc_driver_postgresql
 import pytest
 import pyarrow as pa
 import sqlalchemy as sa
@@ -31,6 +32,27 @@ def test_basic_transaction_isolation():
 
         conn_1.commit()
         assert conn_3.execute(sa.text(f"SELECT * FROM {table_name}")).fetchall() == [(1,)]
+
+
+def test_bound_parameters_prepared():
+    # Doesn't exactly test behaviour of pgarrow, but more that the underlying adbc-driver-postgresql can
+    # prepare queries (which means sending them to the DB to get the parameter types if it can work them
+    # out)
+    engine = sa.create_engine('postgresql+pgarrow://postgres:password@127.0.0.1:5432/', **engine_future)
+
+    with \
+            engine.connect() as conn, \
+            conn.connection.driver_connection.cursor() as cursor:
+
+        # Chosen because the default binding for integers ends up being int64, and there is no matching
+        # generate_subscripts for that type
+        query = "SELECT generate_subscripts('{NULL,1,NULL,2}'::int[], $1)"
+
+        parameters_schema = cursor.adbc_prepare(query)
+        parameters = [1,]
+        assert cursor.execute(query,
+            pa.RecordBatch.from_arrays([parameters], schema=parameters_schema)
+        ).fetchall() == [(1,), (2,), (3,), (4,)]
 
 
 def test_select_as_pyarrow_table():
