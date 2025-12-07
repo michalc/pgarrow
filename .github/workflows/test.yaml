@@ -11,8 +11,8 @@ jobs:
     strategy:
       matrix:
         python-version:
-          # adbc-driver-postgresql 1.6.0 supports Python 3.9.0 onwards
-          - "3.9.0"
+          # adbc-driver-postgresql 1.90 supports Python 3.10.0 onwards, and Python 3.9 is
+          # EOL at the time of writing
           - "3.10.0"
           - "3.11.1"
           - "3.12.0"
