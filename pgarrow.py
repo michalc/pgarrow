@@ -55,32 +55,19 @@ class PgDialect_pgarrow(PGDialect):
         return sql.visitors.replacement_traverse(super()._index_query, {}, self._work_around_query_adbc_base_incompatibilities)
 
     def _work_around_query_adbc_base_incompatibilities(self, obj):
-        '''Works around cases where ADBC is not compatible with the base PostgreSQL dialect queries
+        '''Works around case where ADBC is not compatible with the base PostgreSQL dialect queries
 
-        1. Cases of arguments to functions that have to have INT arguments to INT
+        Specifically, works around the issue that the underlying adbc driver converts bound Python int
+        arguments to BIGINT, which happens due to the queries in _constraint_query and
+        _index_query
 
-           This works around the issues that the underlying adbc driver converts bound Python int
-           arguments to BIGINT, which happens due to the queries in _constraint_query and
-           _index_query
+        Discussed at https://github.com/apache/arrow-adbc/discussions/2865
+        WIP PR at https://github.com/apache/arrow-adbc/pull/2881, which when released this
+        function should be removed
 
-           Discussed at https://github.com/apache/arrow-adbc/discussions/2865
-           WIP PR at https://github.com/apache/arrow-adbc/pull/2881, which when released this
-           function should be removed
-
-           When removed, might be able to reduce the minimum SQLAlchemy on Python 3.13 from 2.0.41
-           to 2.0.31, because the minimum version was only increased to support this
-
-        2. Cases of querying int2vector fields, and specifically pg_index.indoption
-
-           This works around the fact that querying int2vector seems to result in binary data
-           returned. To avoid this, we maniuplate the query in PostgreSQL to return array of ints,
-           which behaves as the query in the base dialect expects
-
-           Discussed at https://github.com/apache/arrow-adbc/discussions/2899
+        When removed, might be able to reduce the minimum SQLAlchemy on Python 3.13 from 2.0.41
+        to 2.0.31, because the minimum version was only increased to support this
         '''
-        if isinstance(obj, sql.schema.Column) and obj._label == 'pg_catalog_pg_index_indoption':
-            return cast(sql.func.string_to_array(cast(pg_catalog.pg_index.c.indoption, TEXT), ' '), ARRAY(INT)).label('indoption')
-
         if isinstance(obj, sql.functions.Function) and obj.name in ('generate_subscripts', 'pg_get_indexdef'):
             arguments = [
                 argument
